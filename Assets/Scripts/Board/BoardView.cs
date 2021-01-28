@@ -6,12 +6,13 @@ using UnityEngine.UI;
 
 public class BoardView : MonoBehaviour, IBoardView
 {
-    public event EventHandler OnSpaceClicked;
-    public event EventHandler OnButtonClicked;
-
-
     [SerializeField] private Button startButton;
     [SerializeField] private Button restartButton;
+    [SerializeField] protected Vector2 startingBoardPosition;
+
+    public event EventHandler OnSpaceClicked;
+    public event EventHandler<Vector2> OnButtonClicked;
+    public Vector2 StartingBoardPosition { get => this.startingBoardPosition; set => this.startingBoardPosition = value; }
 
     private void Awake()
     {
@@ -30,11 +31,11 @@ public class BoardView : MonoBehaviour, IBoardView
 
     public void StartButton()
     {
-        OnButtonClicked(this, EventArgs.Empty);
+        OnButtonClicked(this, this.startingBoardPosition);
     }
 
     public void RestartButton()
     {
-        OnButtonClicked(this, EventArgs.Empty);
+        OnButtonClicked(this, this.startingBoardPosition);
     }
 }

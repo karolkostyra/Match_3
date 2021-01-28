@@ -363,6 +363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startButton: {fileID: 1484773833}
   restartButton: {fileID: 1066400772}
+  startingBoardPosition: {x: -2, y: -2}
 --- !u!4 &452867202
 Transform:
   m_ObjectHideFlags: 0

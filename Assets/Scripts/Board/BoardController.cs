@@ -13,7 +13,7 @@ public class BoardController : Board
     public void Start()
     {
         SetSeed(boardModel.Seed);
-        boardView.OnSpaceClicked += CreateBoard;
+       // boardView.OnSpaceClicked += CreateBoard;
         boardView.OnButtonClicked += CreateBoard;
     }
     
@@ -22,7 +22,7 @@ public class BoardController : Board
         UnityEngine.Random.InitState(seed);
     }
 
-    private void CreateBoard(object sender, EventArgs e)
+    private void CreateBoard(object sender, Vector2 startingBoardPosition)
     {
         CheckBoardHandler();
         
@@ -33,10 +33,11 @@ public class BoardController : Board
         {
             for (int y = 0; y < boardModel.Height; y++)
             {
-                GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x, y, 0f)),
+                GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x+startingBoardPosition.x, y+startingBoardPosition.y, 0f)),
                                                  tile.transform.rotation, boardHandler.transform);
                 
                 newTile.GetComponent<SpriteRenderer>().color = GetRandomMismatchColor(x, y);
+                newTile.name = x.ToString() + ' ' + y.ToString();
                 grid[x, y] = newTile;
             }
         }
@@ -93,7 +94,7 @@ public class BoardController : Board
 
     private void OnDestroy()
     {
-        boardView.OnSpaceClicked -= CreateBoard;
+        //boardView.OnSpaceClicked -= CreateBoard;
         boardView.OnButtonClicked -= CreateBoard;
     }
 }
