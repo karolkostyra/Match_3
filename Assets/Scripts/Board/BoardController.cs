@@ -14,6 +14,7 @@ public class BoardController : Board
     {
         SetSeed(boardModel.Seed);
         boardView.OnSpaceClicked += CreateBoard;
+        boardView.OnButtonClicked += CreateBoard;
     }
     
     private void SetSeed(int seed)
@@ -23,15 +24,7 @@ public class BoardController : Board
 
     private void CreateBoard(object sender, EventArgs e)
     {
-        if(boardHandler == null)
-        {
-            boardHandler = new GameObject("BoardHandler");
-            boardHandler.transform.parent = this.gameObject.transform;
-        }
-        else
-        {
-            Destroy(boardHandler);
-        }
+        CheckBoardHandler();
         
         grid = new GameObject[boardModel.Width, boardModel.Height];
         GameObject tile = boardModel.TilePrefab;
@@ -42,11 +35,31 @@ public class BoardController : Board
             {
                 GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x, y, 0f)),
                                                  tile.transform.rotation, boardHandler.transform);
-
                 
                 newTile.GetComponent<SpriteRenderer>().color = GetRandomMismatchColor(x, y);
                 grid[x, y] = newTile;
             }
+        }
+    }
+    
+    private void CheckBoardHandler()
+    {
+        if (boardHandler == null)
+        {
+            boardHandler = new GameObject("BoardHandler");
+            boardHandler.transform.parent = this.gameObject.transform;
+        }
+        else
+        {
+            ClearBoard();
+        }
+    }
+
+    private void ClearBoard()
+    {
+        foreach(var tile in grid)
+        {
+            Destroy(tile);
         }
     }
 
@@ -81,5 +94,6 @@ public class BoardController : Board
     private void OnDestroy()
     {
         boardView.OnSpaceClicked -= CreateBoard;
+        boardView.OnButtonClicked -= CreateBoard;
     }
 }
