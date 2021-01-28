@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardController : Board
@@ -20,11 +21,6 @@ public class BoardController : Board
         UnityEngine.Random.InitState(seed);
     }
 
-    private void GetRandomColor(object sender, EventArgs e)
-    {
-        Debug.Log(UnityEngine.Random.Range(0, boardModel.ColorCount));
-    }
-
     private void CreateBoard(object sender, EventArgs e)
     {
         if(boardHandler == null)
@@ -36,9 +32,9 @@ public class BoardController : Board
         {
             Destroy(boardHandler);
         }
-
+        
         grid = new GameObject[boardModel.Width, boardModel.Height];
-        var tile = boardModel.TilePrefab;
+        GameObject tile = boardModel.TilePrefab;
 
         for (int x = 0; x < boardModel.Width; x++)
         {
@@ -46,9 +42,30 @@ public class BoardController : Board
             {
                 GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x, y, 0f)),
                                                  tile.transform.rotation, boardHandler.transform);
+
+                
+                newTile.GetComponent<SpriteRenderer>().color = GetRandomMismatchColor(x, y);
                 grid[x, y] = newTile;
             }
         }
+    }
+
+    private Color32 GetRandomMismatchColor(int currentX, int currentY)
+    {
+        List<Color32> colorList = new List<Color32>();
+        colorList.AddRange(boardModel.Colors);
+
+        if (currentX > 1)
+        {
+            colorList.Remove(grid[currentX - 2, currentY].GetComponent<SpriteRenderer>().color);
+        }
+        if (currentY > 1)
+        {
+            colorList.Remove(grid[currentX, currentY - 2].GetComponent<SpriteRenderer>().color);
+        }
+        
+        int randomColor = UnityEngine.Random.Range(0, colorList.Count);
+        return colorList[randomColor];
     }
 
     private Vector3 GetNextPosition(Vector3 position)

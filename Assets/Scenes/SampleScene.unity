@@ -336,23 +336,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardModel:
-    width: 77
-    height: 0
+    width: 5
+    height: 5
     seed: 12345
     colorCount: 6
     colors:
     - serializedVersion: 2
-      rgba: 296707
+      rgba: 4278486787
     - serializedVersion: 2
-      rgba: 56805
+      rgba: 4278246885
     - serializedVersion: 2
-      rgba: 16835
+      rgba: 4278206915
     - serializedVersion: 2
-      rgba: 16740930
+      rgba: 4294931010
     - serializedVersion: 2
-      rgba: 10092647
+      rgba: 4288282727
     - serializedVersion: 2
-      rgba: 16777215
-    cellSize: 0
+      rgba: 4294967295
+    cellSize: 1
     tilePrefab: {fileID: 108274399807627262, guid: a118f2eaa2c3f22449c35d18a82c502f, type: 3}
   boardView: {fileID: 452867201}
