@@ -8,12 +8,12 @@ public class BoardView : MonoBehaviour, IBoardView
 {
     public event EventHandler OnSpaceClicked;
     public event EventHandler<ButtonClickedEventArgs> OnButtonClicked;
-    public Vector2 StartingBoardPosition { get => this.startingBoardPosition; set => this.startingBoardPosition = value; }
+    public Vector2Int StartingBoardPosition { get => this.startingBoardPosition; set => this.startingBoardPosition = value; }
     public GameObject TilePrefab { get => this.tilePrefab; set => this.tilePrefab = value; }
 
     [SerializeField] private Button startButton;
     [SerializeField] private Button restartButton;
-    [SerializeField] protected Vector2 startingBoardPosition;
+    [SerializeField] protected Vector2Int startingBoardPosition;
     [SerializeField] protected GameObject tilePrefab;
 
 

@@ -363,7 +363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startButton: {fileID: 1484773833}
   restartButton: {fileID: 1066400772}
-  startingBoardPosition: {x: 0, y: 0}
+  startingBoardPosition: {x: -2, y: -2}
   tilePrefab: {fileID: 108274399807627262, guid: a118f2eaa2c3f22449c35d18a82c502f, type: 3}
 --- !u!4 &452867202
 Transform:
@@ -972,8 +972,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardModel:
-    width: 5
-    height: 5
+    width: 6
+    height: 6
     seed: 12345
     colorCount: 6
     colors:
@@ -986,9 +986,7 @@ MonoBehaviour:
     - serializedVersion: 2
       rgba: 4294931010
     - serializedVersion: 2
-      rgba: 4288282727
+      rgba: 4294804183
     - serializedVersion: 2
       rgba: 4294967295
-    cellSize: 1
-    tilePrefab: {fileID: 108274399807627262, guid: a118f2eaa2c3f22449c35d18a82c502f, type: 3}
   boardView: {fileID: 452867201}

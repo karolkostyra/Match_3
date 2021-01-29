@@ -7,6 +7,4 @@ public interface IBoardModel
     int Seed { get; set; }
     int ColorCount { get; set; }
     Color32[] Colors { get; }
-    int CellSize { get; set; }
-    GameObject TilePrefab { get; set; }
 }

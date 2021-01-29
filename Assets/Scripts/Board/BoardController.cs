@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardController : Board
@@ -11,7 +10,6 @@ public class BoardController : Board
 
     private GameObject boardHandler;
     private GameObject[,] grid;
-
     private GameObject tile_1;
     private GameObject tile_2;
 
@@ -23,7 +21,6 @@ public class BoardController : Board
     public void Start()
     {
         SetSeed(boardModel.Seed);
-       // boardView.OnSpaceClicked += CreateBoard;
         boardView.OnButtonClicked += CreateBoard;
     }
 
@@ -60,10 +57,13 @@ public class BoardController : Board
 
     private void SwapTiles(Vector3 firstTilePos, Vector3 secondTilePos)
     {
-        GameObject firstTile = grid[(int)firstTilePos.x, (int)firstTilePos.y];
+        int xOffset = boardView.StartingBoardPosition.x;
+        var yOffset = boardView.StartingBoardPosition.y;
+
+        GameObject firstTile = grid[(int)firstTilePos.x - xOffset, (int)firstTilePos.y - yOffset];
         SpriteRenderer firstTileRenderer = firstTile.GetComponent<SpriteRenderer>();
 
-        GameObject secondTile = grid[(int)secondTilePos.x, (int)secondTilePos.y];
+        GameObject secondTile = grid[(int)secondTilePos.x - xOffset, (int)secondTilePos.y - yOffset];
         SpriteRenderer secondTileRenderer = secondTile.GetComponent<SpriteRenderer>();
 
         Color32 temp = firstTileRenderer.color;
@@ -71,11 +71,6 @@ public class BoardController : Board
         {
             firstTileRenderer.color = secondTileRenderer.color;
             secondTileRenderer.color = temp;
-            Debug.Log(firstTile.name + " - " + secondTile.name);
-        }
-        else
-        {
-            Debug.Log("same color");
         }
     }
     
@@ -87,7 +82,6 @@ public class BoardController : Board
     private void CreateBoard(object sender, ButtonClickedEventArgs e)
     {
         CheckBoardHandler();
-        
         grid = new GameObject[boardModel.Width, boardModel.Height];
         Vector2 startingPos = e.startingBoardPos;
         GameObject tile = e.tilePrefab;
@@ -96,7 +90,7 @@ public class BoardController : Board
         {
             for (int y = 0; y < boardModel.Height; y++)
             {
-                GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x+startingPos.x, y+startingPos.y, 0f)),
+                GameObject newTile = Instantiate(tile, new Vector3(x+startingPos.x, y+startingPos.y, 0f),
                                                  tile.transform.rotation, boardHandler.transform);
                 
                 newTile.GetComponent<SpriteRenderer>().color = GetRandomMismatchColor(x, y);
@@ -145,19 +139,8 @@ public class BoardController : Board
         return colorList[randomColor];
     }
 
-    private Vector3 GetNextPosition(Vector3 position)
-    {
-        int size = boardModel.CellSize;
-        int xCount = Mathf.RoundToInt(position.x / size);
-        int yCount = Mathf.RoundToInt(position.y / size);
-        int zCount = 0;
-        
-        return new Vector3((float)xCount * size, (float)yCount * size, (float)zCount);
-    }
-
     private void OnDestroy()
     {
-        //boardView.OnSpaceClicked -= CreateBoard;
         boardView.OnButtonClicked -= CreateBoard;
     }
 }
