@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class BoardView : MonoBehaviour, IBoardView
 {
-    public event EventHandler OnSpaceClicked;
     public event EventHandler<ButtonClickedEventArgs> OnButtonClicked;
     public Vector2Int StartingBoardPosition { get => this.startingBoardPosition; set => this.startingBoardPosition = value; }
     public GameObject TilePrefab { get => this.tilePrefab; set => this.tilePrefab = value; }
@@ -21,15 +20,6 @@ public class BoardView : MonoBehaviour, IBoardView
     {
         startButton.gameObject.SetActive(true);
         restartButton.gameObject.SetActive(false);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("View action - Space");
-            OnSpaceClicked(this, EventArgs.Empty);
-        }
     }
 
     public void StartButton()

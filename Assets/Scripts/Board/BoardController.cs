@@ -58,20 +58,26 @@ public class BoardController : Board
     private void SwapTiles(Vector3 firstTilePos, Vector3 secondTilePos)
     {
         int xOffset = boardView.StartingBoardPosition.x;
-        var yOffset = boardView.StartingBoardPosition.y;
+        int yOffset = boardView.StartingBoardPosition.y;
 
-        GameObject firstTile = grid[(int)firstTilePos.x - xOffset, (int)firstTilePos.y - yOffset];
+        int firstX = (int)firstTilePos.x - xOffset;
+        int firstY = (int)firstTilePos.y - yOffset;
+
+        int secondX = (int)secondTilePos.x - xOffset;
+        int secondY = (int)secondTilePos.y - yOffset;
+
+        GameObject firstTile = grid[firstX, firstY];
+        GameObject secondTile = grid[secondX, secondY];
         SpriteRenderer firstTileRenderer = firstTile.GetComponent<SpriteRenderer>();
-
-        GameObject secondTile = grid[(int)secondTilePos.x - xOffset, (int)secondTilePos.y - yOffset];
         SpriteRenderer secondTileRenderer = secondTile.GetComponent<SpriteRenderer>();
+        
+        var temp = firstTile.transform.position;
+        firstTile.transform.position = secondTile.transform.position;
+        secondTile.transform.position = temp;
 
-        Color32 temp = firstTileRenderer.color;
-        if(temp != secondTileRenderer.color)
-        {
-            firstTileRenderer.color = secondTileRenderer.color;
-            secondTileRenderer.color = temp;
-        }
+        var temp2 = grid[firstX, firstY];
+        grid[firstX, firstY] = grid[secondX, secondY];
+        grid[secondX, secondY] = temp2;
     }
     
     private void SetSeed(int seed)
