@@ -16,43 +16,47 @@ public class BoardController : Board
     public void Awake()
     {
         Instance = this;
-    }
-
-    public void Start()
-    {
         SetSeed(boardModel.Seed);
         boardView.OnButtonClicked += CreateBoard;
     }
 
-    public void GetTile(GameObject tile)
+    public void GetSelectedTile(GameObject tile)
     {
-        if(tile_1 == null)
+        if (tile_1 == null)
         {
             tile_1 = tile;
             Select(tile_1);
-            
         }
-        else if(tile_1 != tile && Vector3.Distance(tile_1.transform.position, tile.transform.position) == 1)
+        else if (tile_1 != tile)
         {
             tile_2 = tile;
-            Deselect(tile_1);
-            SwapTiles(tile_1.transform.position, tile_2.transform.position);
-            tile_1 = tile_2 = null;
+            if (Vector3.Distance(tile_1.transform.position, tile_2.transform.position) == 1)
+            {
+                Deselect(tile_1);
+                SwapTiles(tile_1.transform.position, tile_2.transform.position);
+                ClearSelectedTiles();
+            }
         }
+        else
+        {
+            Deselect(tile_1);
+            ClearSelectedTiles();
+        }
+    }
+
+    private void ClearSelectedTiles()
+    {
+        tile_1 = tile_2 = null;
     }
 
     private void Select(GameObject tile)
     {
-        SpriteRenderer tileRenderer = tile.GetComponent<SpriteRenderer>();
-        Color32 temp = tileRenderer.color;
-        tileRenderer.color = new Color32(temp.r, temp.g, temp.b, 150);
+        tile.GetComponent<Tile>().Select();
     }
 
     private void Deselect(GameObject tile)
     {
-        SpriteRenderer tileRenderer = tile.GetComponent<SpriteRenderer>();
-        Color32 temp = tileRenderer.color;
-        tileRenderer.color = new Color32(temp.r, temp.g, temp.b, 255);
+        tile.GetComponent<Tile>().Deselect();
     }
 
     private void SwapTiles(Vector3 firstTilePos, Vector3 secondTilePos)
@@ -116,6 +120,7 @@ public class BoardController : Board
         else
         {
             ClearBoard();
+            ClearSelectedTiles();
         }
     }
 
@@ -132,14 +137,8 @@ public class BoardController : Board
         List<Color32> colorList = new List<Color32>();
         colorList.AddRange(boardModel.Colors);
 
-        if (currentX > 1)
-        {
-            colorList.Remove(grid[currentX - 2, currentY].GetComponent<SpriteRenderer>().color);
-        }
-        if (currentY > 1)
-        {
-            colorList.Remove(grid[currentX, currentY - 2].GetComponent<SpriteRenderer>().color);
-        }
+        if (currentX > 1) { colorList.Remove(grid[currentX - 2, currentY].GetComponent<SpriteRenderer>().color); }
+        if (currentY > 1) { colorList.Remove(grid[currentX, currentY - 2].GetComponent<SpriteRenderer>().color); }
         
         int randomColor = UnityEngine.Random.Range(0, colorList.Count);
         return colorList[randomColor];
