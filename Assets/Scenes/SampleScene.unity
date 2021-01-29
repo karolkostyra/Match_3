@@ -990,3 +990,65 @@ MonoBehaviour:
     - serializedVersion: 2
       rgba: 4294967295
   boardView: {fileID: 452867201}
+--- !u!1 &1806121518
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1806121520}
+  - component: {fileID: 1806121519}
+  m_Layer: 0
+  m_Name: BoardControllerTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1806121519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806121518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48bdad1ed28af5948aa885923374924f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boardModel:
+    width: 7
+    height: 8
+    seed: 12345
+    colorCount: 6
+    colors:
+    - serializedVersion: 2
+      rgba: 4278486787
+    - serializedVersion: 2
+      rgba: 4278246885
+    - serializedVersion: 2
+      rgba: 4278206915
+    - serializedVersion: 2
+      rgba: 4294931010
+    - serializedVersion: 2
+      rgba: 4294804183
+    - serializedVersion: 2
+      rgba: 4294967295
+  boardView: {fileID: 452867201}
+--- !u!4 &1806121520
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1806121518}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

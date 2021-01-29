@@ -26,4 +26,9 @@ public class Tile : MonoBehaviour, ITile
         Color32 temp = spriteRenderer.color;
         spriteRenderer.color = new Color32(temp.r, temp.g, temp.b, 255);
     }
+
+    public void Destroy()
+    {
+        Destroy(this.gameObject);
+    }
 }

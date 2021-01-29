@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class BoardController : Board
+public class BoardControllerTest : Board
 {
     [SerializeField] private BoardModel boardModel;
     [SerializeField] private BoardView boardView;
@@ -118,7 +118,7 @@ public class BoardController : Board
             }
         }
     }
-
+    
     private void FindMatchingTiles(GameObject[,] _grid)
     {
         CopyGrid(_grid);
@@ -163,7 +163,7 @@ public class BoardController : Board
 
     private void CheckTile(int x, int y, GameObject[,] gridCopy, bool inRow = true)
     {
-        if (gridCopy[x, y] == null)
+        if (gridCopy[x, y] == null) 
         {
             return;
         }
