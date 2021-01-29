@@ -12,7 +12,7 @@ public class Tile : MonoBehaviour, ITile
 
     private void OnMouseDown()
     {
-        BoardController.Instance.GetSelectedTile(this.gameObject);
+        BoardView.Instance.GetSelectedTile(this.gameObject);
     }
 
     public void Select()

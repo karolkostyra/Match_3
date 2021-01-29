@@ -3,72 +3,29 @@ using UnityEngine;
 
 public class BoardController : Board
 {
-    public static BoardController Instance { get; private set; }
-    
     [SerializeField] private BoardModel boardModel;
     [SerializeField] private BoardView boardView;
 
     private GameObject boardHandler;
     private GameObject[,] grid;
-    private GameObject tile_1;
-    private GameObject tile_2;
 
     public void Awake()
     {
-        Instance = this;
         SetSeed(boardModel.Seed);
         boardView.OnButtonClicked += CreateBoard;
+        boardView.OnSwapTiles += SwapTiles;
     }
 
-    public void GetSelectedTile(GameObject tile)
-    {
-        if (tile_1 == null)
-        {
-            tile_1 = tile;
-            Select(tile_1);
-        }
-        else if (tile_1 != tile)
-        {
-            tile_2 = tile;
-            if (Vector3.Distance(tile_1.transform.position, tile_2.transform.position) == 1)
-            {
-                Deselect(tile_1);
-                SwapTiles(tile_1.transform.position, tile_2.transform.position);
-                ClearSelectedTiles();
-            }
-        }
-        else
-        {
-            Deselect(tile_1);
-            ClearSelectedTiles();
-        }
-    }
-
-    private void ClearSelectedTiles()
-    {
-        tile_1 = tile_2 = null;
-    }
-
-    private void Select(GameObject tile)
-    {
-        tile.GetComponent<Tile>().Select();
-    }
-
-    private void Deselect(GameObject tile)
-    {
-        tile.GetComponent<Tile>().Deselect();
-    }
-
-    private void SwapTiles(Vector3 firstTilePos, Vector3 secondTilePos)
+    private void SwapTiles(object sender, SwapTilesEventArgs e)
     {
         int xOffset = boardView.StartingBoardPosition.x;
         int yOffset = boardView.StartingBoardPosition.y;
 
-        int firstX = (int)firstTilePos.x - xOffset;
-        int firstY = (int)firstTilePos.y - yOffset;
+        int firstX = (int)e.firstTilePosition.x - xOffset;
+        int firstY = (int)e.firstTilePosition.y - yOffset;
 
-        int secondX = (int)secondTilePos.x - xOffset;
-        int secondY = (int)secondTilePos.y - yOffset;
+        int secondX = (int)e.secondTilePosition.x - xOffset;
+        int secondY = (int)e.secondTilePosition.y - yOffset;
 
         GameObject firstTile = grid[firstX, firstY];
         GameObject secondTile = grid[secondX, secondY];
@@ -89,7 +46,7 @@ public class BoardController : Board
         UnityEngine.Random.InitState(seed);
     }
 
-    private void CreateBoard(object sender, ButtonClickedEventArgs e)
+    private void CreateBoard(object sender, CreateBoardEventArgs e)
     {
         CheckBoardHandler();
         grid = new GameObject[boardModel.Width, boardModel.Height];
@@ -120,7 +77,7 @@ public class BoardController : Board
         else
         {
             ClearBoard();
-            ClearSelectedTiles();
+            boardView.ClearSelectedTiles();
         }
     }
 
@@ -147,5 +104,6 @@ public class BoardController : Board
     private void OnDestroy()
     {
         boardView.OnButtonClicked -= CreateBoard;
+        boardView.OnSwapTiles -= SwapTiles;
     }
 }
