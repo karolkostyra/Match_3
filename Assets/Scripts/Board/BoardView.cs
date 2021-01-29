@@ -6,13 +6,16 @@ using UnityEngine.UI;
 
 public class BoardView : MonoBehaviour, IBoardView
 {
+    public event EventHandler OnSpaceClicked;
+    public event EventHandler<ButtonClickedEventArgs> OnButtonClicked;
+    public Vector2 StartingBoardPosition { get => this.startingBoardPosition; set => this.startingBoardPosition = value; }
+    public GameObject TilePrefab { get => this.tilePrefab; set => this.tilePrefab = value; }
+
     [SerializeField] private Button startButton;
     [SerializeField] private Button restartButton;
     [SerializeField] protected Vector2 startingBoardPosition;
+    [SerializeField] protected GameObject tilePrefab;
 
-    public event EventHandler OnSpaceClicked;
-    public event EventHandler<Vector2> OnButtonClicked;
-    public Vector2 StartingBoardPosition { get => this.startingBoardPosition; set => this.startingBoardPosition = value; }
 
     private void Awake()
     {
@@ -31,11 +34,11 @@ public class BoardView : MonoBehaviour, IBoardView
 
     public void StartButton()
     {
-        OnButtonClicked(this, this.startingBoardPosition);
+        OnButtonClicked(this, new ButtonClickedEventArgs(this.startingBoardPosition, this.tilePrefab));
     }
 
     public void RestartButton()
     {
-        OnButtonClicked(this, this.startingBoardPosition);
+        OnButtonClicked(this, new ButtonClickedEventArgs(this.startingBoardPosition, this.tilePrefab));
     }
 }

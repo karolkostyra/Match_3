@@ -4,11 +4,21 @@ using UnityEngine;
 
 public class BoardController : Board
 {
+    public static BoardController Instance { get; private set; }
+    
     [SerializeField] private BoardModel boardModel;
     [SerializeField] private BoardView boardView;
 
     private GameObject boardHandler;
     private GameObject[,] grid;
+
+    private GameObject tile_1;
+    private GameObject tile_2;
+
+    public void Awake()
+    {
+        Instance = this;
+    }
 
     public void Start()
     {
@@ -16,24 +26,77 @@ public class BoardController : Board
        // boardView.OnSpaceClicked += CreateBoard;
         boardView.OnButtonClicked += CreateBoard;
     }
+
+    public void GetTile(GameObject tile)
+    {
+        if(tile_1 == null)
+        {
+            tile_1 = tile;
+            Select(tile_1);
+            
+        }
+        else if(tile_1 != tile && Vector3.Distance(tile_1.transform.position, tile.transform.position) == 1)
+        {
+            tile_2 = tile;
+            Deselect(tile_1);
+            SwapTiles(tile_1.transform.position, tile_2.transform.position);
+            tile_1 = tile_2 = null;
+        }
+    }
+
+    private void Select(GameObject tile)
+    {
+        SpriteRenderer tileRenderer = tile.GetComponent<SpriteRenderer>();
+        Color32 temp = tileRenderer.color;
+        tileRenderer.color = new Color32(temp.r, temp.g, temp.b, 150);
+    }
+
+    private void Deselect(GameObject tile)
+    {
+        SpriteRenderer tileRenderer = tile.GetComponent<SpriteRenderer>();
+        Color32 temp = tileRenderer.color;
+        tileRenderer.color = new Color32(temp.r, temp.g, temp.b, 255);
+    }
+
+    private void SwapTiles(Vector3 firstTilePos, Vector3 secondTilePos)
+    {
+        GameObject firstTile = grid[(int)firstTilePos.x, (int)firstTilePos.y];
+        SpriteRenderer firstTileRenderer = firstTile.GetComponent<SpriteRenderer>();
+
+        GameObject secondTile = grid[(int)secondTilePos.x, (int)secondTilePos.y];
+        SpriteRenderer secondTileRenderer = secondTile.GetComponent<SpriteRenderer>();
+
+        Color32 temp = firstTileRenderer.color;
+        if(temp != secondTileRenderer.color)
+        {
+            firstTileRenderer.color = secondTileRenderer.color;
+            secondTileRenderer.color = temp;
+            Debug.Log(firstTile.name + " - " + secondTile.name);
+        }
+        else
+        {
+            Debug.Log("same color");
+        }
+    }
     
     private void SetSeed(int seed)
     {
         UnityEngine.Random.InitState(seed);
     }
 
-    private void CreateBoard(object sender, Vector2 startingBoardPosition)
+    private void CreateBoard(object sender, ButtonClickedEventArgs e)
     {
         CheckBoardHandler();
         
         grid = new GameObject[boardModel.Width, boardModel.Height];
-        GameObject tile = boardModel.TilePrefab;
+        Vector2 startingPos = e.startingBoardPos;
+        GameObject tile = e.tilePrefab;
 
         for (int x = 0; x < boardModel.Width; x++)
         {
             for (int y = 0; y < boardModel.Height; y++)
             {
-                GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x+startingBoardPosition.x, y+startingBoardPosition.y, 0f)),
+                GameObject newTile = Instantiate(tile, GetNextPosition(new Vector3(x+startingPos.x, y+startingPos.y, 0f)),
                                                  tile.transform.rotation, boardHandler.transform);
                 
                 newTile.GetComponent<SpriteRenderer>().color = GetRandomMismatchColor(x, y);
