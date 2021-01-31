@@ -11,7 +11,6 @@ public class BoardController : Board, IBoardController
     private GameObject[,] grid, gridCopy1, gridCopy2;
     private List<GameObject> matchingTilesInRow, matchingTilesInCol;
     private bool clearedTiles;
-
     private GameObject tilePrefab;
     private Vector2Int startingBoardPos;
 
@@ -26,25 +25,23 @@ public class BoardController : Board, IBoardController
 
     private void SwapTiles(object sender, SwapTilesEventArgs e)
     {
-        int firstX = (int)e.firstTilePosition.x - startingBoardPos.x;
-        int firstY = (int)e.firstTilePosition.y - startingBoardPos.y;
-        int secondX = (int)e.secondTilePosition.x - startingBoardPos.x;
-        int secondY = (int)e.secondTilePosition.y - startingBoardPos.y;
+        Vector2Int firstTilePos = GetCorrectPosition(e.firstTilePosition);
+        Vector2Int secondTilePos = GetCorrectPosition(e.secondTilePosition);
 
-        var tempTile = grid[firstX, firstY];
+        var tempTile = grid[firstTilePos.x, firstTilePos.y];
         var tempTileName = tempTile.name;
 
-        grid[firstX, firstY].name = grid[secondX, secondY].name;
-        grid[secondX, secondY].name = tempTileName;
-        grid[firstX, firstY] = grid[secondX, secondY];
-        grid[secondX, secondY] = tempTile;
+        grid[firstTilePos.x, firstTilePos.y].name = grid[secondTilePos.x, secondTilePos.y].name;
+        grid[secondTilePos.x, secondTilePos.y].name = tempTileName;
+        grid[firstTilePos.x, firstTilePos.y] = grid[secondTilePos.x, secondTilePos.y];
+        grid[secondTilePos.x, secondTilePos.y] = tempTile;
 
         FindMatchingTiles(grid);
     }
 
     private void SetSeed(int seed)
     {
-        UnityEngine.Random.InitState(seed);
+        Random.InitState(seed);
     }
 
     private void CreateBoard(object sender, CreateBoardEventArgs e)
@@ -88,12 +85,15 @@ public class BoardController : Board, IBoardController
     private Color32 GetRandomMismatchColor(int currentX, int currentY)
     {
         List<Color32> colorList = new List<Color32>();
-        colorList.AddRange(boardModel.Colors);
-
-        if (currentX > 1) { colorList.Remove(grid[currentX - 2, currentY].GetComponent<SpriteRenderer>().color); }
-        if (currentY > 1) { colorList.Remove(grid[currentX, currentY - 2].GetComponent<SpriteRenderer>().color); }
-
-        int randomColor = UnityEngine.Random.Range(0, colorList.Count);
+        int maxRange = boardModel.ColorCount;
+        for (int i = 0; i < boardModel.ColorCount; i++)
+        {
+            colorList.Add(boardModel.Colors[i]);
+        }
+        if (currentX > 1) { colorList.Remove(grid[currentX - 2, currentY].GetComponent<SpriteRenderer>().color); maxRange--; }
+        if (currentY > 1) { colorList.Remove(grid[currentX, currentY - 2].GetComponent<SpriteRenderer>().color); maxRange--; }
+        
+        int randomColor = Random.Range(0, maxRange);
         return colorList[randomColor];
     }
 
@@ -206,8 +206,8 @@ public class BoardController : Board, IBoardController
         {
             if (tile.transform.position.y == first)
             {
-                int x = (int)tile.transform.position.x - startingBoardPos.x;
-                int y = (int)tile.transform.position.y - startingBoardPos.y;
+                int x = GetCorrectPosition(tile.transform.position).x;
+                int y = GetCorrectPosition(tile.transform.position).y;
                 GameObject gridCell = grid[x, y];
                 if (gridCell)
                 {
@@ -226,8 +226,8 @@ public class BoardController : Board, IBoardController
         {
             if (tile.transform.position.x == first)
             {
-                int x = (int)tile.transform.position.x - startingBoardPos.x;
-                int y = (int)tile.transform.position.y - startingBoardPos.y;
+                int x = GetCorrectPosition(tile.transform.position).x;
+                int y = GetCorrectPosition(tile.transform.position).y;
                 GameObject gridCell = grid[x, y];
                 if (gridCell)
                 {
@@ -243,8 +243,8 @@ public class BoardController : Board, IBoardController
     {
         foreach (var tile in emptyCells)
         {
-            int x = (int)tile.transform.position.x - startingBoardPos.x;
-            int y = (int)tile.transform.position.y - startingBoardPos.y;
+            int x = GetCorrectPosition(tile.transform.position).x;
+            int y = GetCorrectPosition(tile.transform.position).y;
             grid[x, y] = InstantiateTile(x, y);
         }
     }
@@ -271,6 +271,11 @@ public class BoardController : Board, IBoardController
                 gridCopy2[x, y] = sourceGrid[x, y];
             }
         }
+    }
+
+    private Vector2Int GetCorrectPosition(Vector3 pos)
+    {
+        return new Vector2Int((int)pos.x - startingBoardPos.x, (int)pos.y - startingBoardPos.y);
     }
 
     private void OnDestroy()
