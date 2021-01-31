@@ -97,19 +97,6 @@ public class BoardController : Board, IBoardController
         return colorList[randomColor];
     }
 
-    private void RemoveRepeatingColor(List<Color32> _colorList, int x, int y, Color32 _colorToRemove)
-    {
-        Color32 colorToRemove = grid[x, y].GetComponent<SpriteRenderer>().color;
-
-        foreach (var color in _colorList)
-        {
-            if (color.Equals(colorToRemove))
-            {
-                _colorList.Remove(colorToRemove);
-            }
-        }
-    }
-
     private void FindMatchingTiles(GameObject[,] _grid)
     {
         CopyGrid(_grid);
