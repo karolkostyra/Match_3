@@ -9,7 +9,6 @@ public class BoardModel : IBoardModel
     public int ColorCount { get => this.colorCount; set => this.colorCount = value; }
     public Color32[] Colors { get => this.colors; set => this.colors = value; }
 
-
     [SerializeField] protected int width;
     [SerializeField] protected int height;
     [SerializeField] protected int seed;

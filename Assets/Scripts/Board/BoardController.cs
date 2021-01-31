@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class BoardController : Board
+public class BoardController : Board, IBoardController
 {
     [SerializeField] private BoardModel boardModel;
     [SerializeField] private BoardView boardView;
@@ -31,22 +31,13 @@ public class BoardController : Board
         int secondX = (int)e.secondTilePosition.x - startingBoardPos.x;
         int secondY = (int)e.secondTilePosition.y - startingBoardPos.y;
 
-        GameObject firstTile = grid[firstX, firstY];
-        GameObject secondTile = grid[secondX, secondY];
-        SpriteRenderer firstTileRenderer = firstTile.GetComponent<SpriteRenderer>();
-        SpriteRenderer secondTileRenderer = secondTile.GetComponent<SpriteRenderer>();
+        var tempTile = grid[firstX, firstY];
+        var tempTileName = tempTile.name;
 
-        var tempName = firstTile.name;
-        firstTile.name = secondTile.name;
-        secondTile.name = tempName;
-
-        var temp = firstTile.transform.position;
-        firstTile.transform.position = secondTile.transform.position;
-        secondTile.transform.position = temp;
-
-        var temp2 = grid[firstX, firstY];
+        grid[firstX, firstY].name = grid[secondX, secondY].name;
+        grid[secondX, secondY].name = tempTileName;
         grid[firstX, firstY] = grid[secondX, secondY];
-        grid[secondX, secondY] = temp2;
+        grid[secondX, secondY] = tempTile;
 
         FindMatchingTiles(grid);
     }
