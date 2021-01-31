@@ -125,7 +125,7 @@ public class BoardController : Board, IBoardController
                 CheckTile(x, y, gridCopy1);
                 if (matchingTilesInRow.Count >= 3)
                 {
-                    RemoveMatchingTilesInRow();
+                    RemoveMatchingTiles(matchingTilesInRow);
                     FillEmptyCells(matchingTilesInRow);
                 }
                 currentTile = null;
@@ -139,7 +139,7 @@ public class BoardController : Board, IBoardController
                 CheckTile(x, y, gridCopy2, false);
                 if (matchingTilesInCol.Count >= 3)
                 {
-                    RemoveMatchingTilesInCol();
+                    RemoveMatchingTiles(matchingTilesInCol);
                     FillEmptyCells(matchingTilesInCol);
                 }
                 currentTile = null;
@@ -199,41 +199,17 @@ public class BoardController : Board, IBoardController
         matchingTilesInCol.Add(gridCopy2[x, y]);
     }
 
-    private void RemoveMatchingTilesInRow()
+    private void RemoveMatchingTiles(List<GameObject> matchingTilesList)
     {
-        var first = matchingTilesInRow[0].transform.position.y;
-        foreach (var tile in matchingTilesInRow)
+        foreach (var tile in matchingTilesList)
         {
-            if (tile.transform.position.y == first)
+            int x = GetCorrectPosition(tile.transform.position).x;
+            int y = GetCorrectPosition(tile.transform.position).y;
+            GameObject gridCell = grid[x, y];
+            if (gridCell)
             {
-                int x = GetCorrectPosition(tile.transform.position).x;
-                int y = GetCorrectPosition(tile.transform.position).y;
-                GameObject gridCell = grid[x, y];
-                if (gridCell)
-                {
-                    gridCell.GetComponent<Tile>().Destroy();
-                    gridCell = null;
-                }
-            }
-        }
-        clearedTiles = true;
-    }
-
-    private void RemoveMatchingTilesInCol()
-    {
-        var first = matchingTilesInCol[0].transform.position.x;
-        foreach (var tile in matchingTilesInCol)
-        {
-            if (tile.transform.position.x == first)
-            {
-                int x = GetCorrectPosition(tile.transform.position).x;
-                int y = GetCorrectPosition(tile.transform.position).y;
-                GameObject gridCell = grid[x, y];
-                if (gridCell)
-                {
-                    gridCell.GetComponent<Tile>().Destroy();
-                    gridCell = null;
-                }
+                gridCell.GetComponent<Tile>().Destroy();
+                gridCell = null;
             }
         }
         clearedTiles = true;
