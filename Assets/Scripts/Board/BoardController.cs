@@ -90,16 +90,16 @@ public class BoardController : Board, IBoardController
         {
             colorList.Add(boardModel.Colors[i]);
         }
-        if (currentX > 1) { colorList.Remove(grid[currentX - 2, currentY].GetComponent<SpriteRenderer>().color); maxRange--; }
-        if (currentY > 1) { colorList.Remove(grid[currentX, currentY - 2].GetComponent<SpriteRenderer>().color); maxRange--; }
+        if (currentX > 1) { colorList.Remove(GetTileColor(grid[currentX - 2, currentY])); maxRange--; }
+        if (currentY > 1) { colorList.Remove(GetTileColor(grid[currentX, currentY - 2])); maxRange--; }
         
         int randomColor = Random.Range(0, maxRange);
         return colorList[randomColor];
     }
 
-    private void FindMatchingTiles(GameObject[,] _grid)
+    private void FindMatchingTiles(GameObject[,] grid)
     {
-        CopyGrid(_grid);
+        CopyGrid(grid);
         clearedTiles = false;
         currentTile = null;
         matchingTilesInRow.Clear();
@@ -109,37 +109,24 @@ public class BoardController : Board, IBoardController
         {
             for (int x = 0; x < boardModel.Width; x++)
             {
-                CheckTile(x, y, gridCopy1);
-                if (matchingTilesInRow.Count >= 3)
-                {
-                    RemoveMatchingTiles(matchingTilesInRow);
-                    FillEmptyCells(matchingTilesInRow);
-                }
+                CheckTile(x, y, gridCopy1, matchingTilesInRow);
+                CheckTile(x, y, gridCopy2, matchingTilesInCol, false);
+
+                RemoveMatchingTiles(matchingTilesInRow);
+                RemoveMatchingTiles(matchingTilesInCol);
+                
                 currentTile = null;
                 matchingTilesInRow.Clear();
-            }
-        }
-        for (int x = 0; x < boardModel.Width; x++)
-        {
-            for (int y = 0; y < boardModel.Height; y++)
-            {
-                CheckTile(x, y, gridCopy2, false);
-                if (matchingTilesInCol.Count >= 3)
-                {
-                    RemoveMatchingTiles(matchingTilesInCol);
-                    FillEmptyCells(matchingTilesInCol);
-                }
-                currentTile = null;
                 matchingTilesInCol.Clear();
             }
         }
         if (clearedTiles)
         {
-            FindMatchingTiles(grid);
+            FindMatchingTiles(this.grid);
         }
     }
 
-    private void CheckTile(int x, int y, GameObject[,] gridCopy, bool inRow = true)
+    private void CheckTile(int x, int y, GameObject[,] gridCopy, List<GameObject> matchingTiles, bool inRow = true)
     {
         if (gridCopy[x, y] == null)
         {
@@ -148,46 +135,42 @@ public class BoardController : Board, IBoardController
         if (currentTile == null)
         {
             currentTile = gridCopy[x, y];
-            if (inRow) { AddToMatchingTilesInRow(x, y); }
-            else { AddToMatchingTilesInCol(x, y); }
+            matchingTiles.Add(gridCopy[x,y]);
             gridCopy[x, y] = null;
         }
-        else if (currentTile.GetComponent<SpriteRenderer>().color != gridCopy[x, y].GetComponent<SpriteRenderer>().color)
+        else if (GetTileColor(currentTile) == GetTileColor(gridCopy[x, y]))
         {
-            return;
+            matchingTiles.Add(gridCopy[x, y]);
+            gridCopy[x, y] = null;
         }
         else
         {
-            if (inRow) { AddToMatchingTilesInRow(x, y); }
-            else { AddToMatchingTilesInCol(x, y); }
-            gridCopy[x, y] = null;
+            return;
         }
 
         if (inRow)
         {
-            if (x > 0) { CheckTile(x - 1, y, gridCopy, true); }
-            if (x < boardModel.Width - 1) { CheckTile(x + 1, y, gridCopy, true); }
+            if (x > 0) { CheckTile(x - 1, y, gridCopy, matchingTiles, true); }
+            if (x < boardModel.Width - 1) { CheckTile(x + 1, y, gridCopy, matchingTiles, true); }
         }
         else
         {
-            if (y > 0) { CheckTile(x, y - 1, gridCopy, false); }
-            if (y < boardModel.Height - 1) { CheckTile(x, y + 1, gridCopy, false); }
+            if (y > 0) { CheckTile(x, y - 1, gridCopy, matchingTiles, false); }
+            if (y < boardModel.Height - 1) { CheckTile(x, y + 1, gridCopy, matchingTiles, false); }
         }
     }
 
-
-    private void AddToMatchingTilesInRow(int x, int y)
+    private Color GetTileColor(GameObject tile)
     {
-        matchingTilesInRow.Add(gridCopy1[x, y]);
-    }
-
-    private void AddToMatchingTilesInCol(int x, int y)
-    {
-        matchingTilesInCol.Add(gridCopy2[x, y]);
+        return tile.GetComponent<SpriteRenderer>().color;
     }
 
     private void RemoveMatchingTiles(List<GameObject> matchingTilesList)
     {
+        if (matchingTilesList.Count < 3)
+        {
+            return;
+        }
         foreach (var tile in matchingTilesList)
         {
             int x = GetCorrectPosition(tile.transform.position).x;
@@ -200,6 +183,7 @@ public class BoardController : Board, IBoardController
             }
         }
         clearedTiles = true;
+        FillEmptyCells(matchingTilesList);
     }
 
     private void FillEmptyCells(List<GameObject> emptyCells)
