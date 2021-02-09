@@ -20,7 +20,7 @@ public class BoardView : MonoBehaviour, IBoardView
 
     private GameObject tile_1;
     private GameObject tile_2;
-    private bool isMoving = false;
+    public bool isMoving = false;
 
     private void Awake()
     {
@@ -68,7 +68,7 @@ public class BoardView : MonoBehaviour, IBoardView
         }
     }
 
-    IEnumerator SwapTiles(Vector3 t1, Vector3 t2)
+    public IEnumerator SwapTiles(Vector3 t1, Vector3 t2)
     {
         float i = 0;
         while (i < 1)

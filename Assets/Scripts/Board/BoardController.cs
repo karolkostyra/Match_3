@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardController : Board, IBoardController
 {
     [SerializeField] private BoardModel boardModel;
     [SerializeField] private BoardView boardView;
+    [SerializeField] private GameObject spriteMaskPrefab;
 
     private GameObject boardHandler;
     private GameObject currentTile;
@@ -13,6 +15,9 @@ public class BoardController : Board, IBoardController
     private bool clearedTiles;
     private GameObject tilePrefab;
     private Vector2Int startingBoardPos;
+    private bool fullGrid;
+    private int counter = 0;
+    private bool isMoving = false;
 
     public void Awake()
     {
@@ -21,6 +26,15 @@ public class BoardController : Board, IBoardController
         boardView.OnSwapTiles += SwapTiles;
         matchingTilesInRow = new List<GameObject>();
         matchingTilesInCol = new List<GameObject>();
+    }
+
+    private void Update()
+    {
+        if (fullGrid && clearedTiles && !isMoving)
+        {
+            boardView.isMoving = false;
+            FindMatchingTiles(grid);
+        }
     }
 
     private void SwapTiles(object sender, SwapTilesEventArgs e)
@@ -36,7 +50,10 @@ public class BoardController : Board, IBoardController
         grid[firstTilePos.x, firstTilePos.y] = grid[secondTilePos.x, secondTilePos.y];
         grid[secondTilePos.x, secondTilePos.y] = tempTile;
 
-        FindMatchingTiles(grid);
+        if (fullGrid)
+        {
+            FindMatchingTiles(grid);
+        }
     }
 
     private void SetSeed(int seed)
@@ -47,17 +64,23 @@ public class BoardController : Board, IBoardController
     private void CreateBoard(object sender, CreateBoardEventArgs e)
     {
         CheckBoardHandler();
-        grid = new GameObject[boardModel.Width, boardModel.Height];
+        grid = new GameObject[boardModel.Width, boardModel.Height+1];
         startingBoardPos = e.startingBoardPos;
         tilePrefab = e.tilePrefab;
 
         for (int x = 0; x < boardModel.Width; x++)
         {
-            for (int y = 0; y < boardModel.Height; y++)
+            for (int y = 0; y < boardModel.Height+1; y++)
             {
                 grid[x, y] = InstantiateTile(x, y);
             }
         }
+        GameObject spriteMask = Instantiate(spriteMaskPrefab, grid[boardModel.Width/2,boardModel.Height].transform.position,
+                                            spriteMaskPrefab.transform.rotation, boardHandler.transform);
+
+        spriteMask.transform.localScale = new Vector3(boardModel.Width + boardModel.Width * startingBoardPos.x,
+                                                      tilePrefab.transform.localScale.y, 0);
+        fullGrid = true;
     }
 
     private void CheckBoardHandler()
@@ -120,9 +143,9 @@ public class BoardController : Board, IBoardController
                 matchingTilesInCol.Clear();
             }
         }
-        if (clearedTiles)
+        if (fullGrid && clearedTiles)
         {
-            FindMatchingTiles(this.grid);
+            FillEmptyCells();
         }
     }
 
@@ -160,11 +183,6 @@ public class BoardController : Board, IBoardController
         }
     }
 
-    private Color GetTileColor(GameObject tile)
-    {
-        return tile.GetComponent<SpriteRenderer>().color;
-    }
-
     private void RemoveMatchingTiles(List<GameObject> matchingTilesList)
     {
         if (matchingTilesList.Count < 3)
@@ -178,23 +196,106 @@ public class BoardController : Board, IBoardController
             GameObject gridCell = grid[x, y];
             if (gridCell)
             {
-                gridCell.GetComponent<Tile>().Destroy();
-                gridCell = null;
+                gridCell.GetComponent<SpriteRenderer>().color = new Color32(0, 0, 0, 0);
             }
         }
         clearedTiles = true;
-        FillEmptyCells(matchingTilesList);
+        fullGrid = false;
+        FillEmptyCells();
     }
 
-    private void FillEmptyCells(List<GameObject> emptyCells)
+    private void FillEmptyCells()
     {
-        foreach (var tile in emptyCells)
+        for (int x = 0; x < boardModel.Width; x++)
         {
-            int x = GetCorrectPosition(tile.transform.position).x;
-            int y = GetCorrectPosition(tile.transform.position).y;
-            grid[x, y] = InstantiateTile(x, y);
+            for (int y = 0; y < boardModel.Height; y++)
+            {
+                if ((grid[x, y] == null || GetTileColor(grid[x, y])== new Color32(0, 0, 0, 0)) && !isMoving)
+                {
+                    counter++;
+                    int x2 = (int)GetNearestTilePos(x, y).x;
+                    int y2 = (int)GetNearestTilePos(x, y).y;
+
+                    var temp = grid[x2, y2];
+                    var tempName = temp.name;
+                    temp.name = grid[x, y].name;
+                    grid[x, y].name = tempName;
+                    grid[x2, y2] = null;
+
+                    StartCoroutine(MoveTileDown(x, y, x2, y2, temp));
+                    break;
+                }
+                counter = 0;
+            }
+            if (counter > 0)
+            {
+                break;
+            }
+        }
+        if(counter == 0)
+        {
+            fullGrid = true;
+            clearedTiles = true;
+        }
+        else
+        {
+            StartCoroutine(Wait());
         }
     }
+
+    private IEnumerator Wait()
+    {
+        yield return new WaitForSeconds(0.1f);
+        FillEmptyCells();
+    }
+
+    public IEnumerator MoveTileDown(int x1, int y1, int x2, int y2, GameObject movingTile)
+    {
+        isMoving = boardView.isMoving = true;
+        float i = 0;
+        var tile1 = grid[x1, y1].transform.position;
+        var tile2 = movingTile.transform.position;
+
+        while (i < 1)
+        {
+            i += Time.deltaTime * 15f;
+            grid[x1, y1].transform.position = Vector3.Lerp(grid[x1, y1].transform.position, tile2, i);
+            movingTile.transform.position = Vector3.Lerp(movingTile.transform.position, tile1, i);
+            yield return 0;
+        }
+        var temp = grid[x1, y1];
+        grid[x1, y1] = movingTile;
+        grid[x2, y2] = temp;
+        UpdateAdditionalRow();
+        isMoving = false;
+    }
+
+    private void UpdateAdditionalRow()
+    {
+        int y = boardModel.Height;
+        for (int x = 0; x < boardModel.Width; x++)
+        {
+            if(GetTileColor(grid[x, y]) == new Color32(0, 0, 0, 0))
+            {
+                grid[x, y].GetComponent<SpriteRenderer>().color = GetRandomMismatchColor(x, y);
+            }
+        }
+    }
+
+    private Vector3 GetNearestTilePos(int x, int y)
+    {
+        int nearestTileY = 0;
+        for (int i = y; i < boardModel.Height+1; i++)
+        {
+            if(grid[x,i] != null && GetTileColor(grid[x,i]) != new Color32(0,0,0,0))
+            {
+                nearestTileY = i;
+                break;
+            }
+        }
+        return new Vector3(x, nearestTileY, 0);
+
+    } 
 
     private GameObject InstantiateTile(int x, int y)
     {
@@ -223,6 +324,11 @@ public class BoardController : Board, IBoardController
     private Vector2Int GetCorrectPosition(Vector3 pos)
     {
         return new Vector2Int((int)pos.x - startingBoardPos.x, (int)pos.y - startingBoardPos.y);
+    }
+
+    private Color GetTileColor(GameObject tile)
+    {
+        return tile.GetComponent<SpriteRenderer>().color;
     }
 
     private void OnDestroy()

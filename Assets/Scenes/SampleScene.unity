@@ -991,3 +991,4 @@ MonoBehaviour:
     - serializedVersion: 2
       rgba: 4294967295
   boardView: {fileID: 452867201}
+  spriteMaskPrefab: {fileID: 4779712545649390728, guid: 019c5da34d765394ca9c8ce8abf6a56d, type: 3}
