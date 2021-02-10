@@ -4,15 +4,29 @@
 public class Tile : MonoBehaviour, ITile
 {
     private SpriteRenderer spriteRenderer;
+    //public bool IsMoving { get => isMoving; }
+
+    private bool isMoving;
 
     private void Start()
     {
+        isMoving = false;
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void OnMouseDown()
     {
         BoardView.Instance.GetSelectedTile(this.gameObject);
+    }
+
+    public void Moving()
+    {
+        isMoving = !isMoving;
+    }
+
+    public bool GetIsMoving()
+    {
+        return isMoving;
     }
 
     public void Select()
